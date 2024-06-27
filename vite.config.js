@@ -14,7 +14,7 @@ export default defineConfig({
           minify: true,
           bundle: true,
           entryPoints: [join(process.cwd(), 'src', 'service-worker.js')],
-          outfile: join(process.cwd(), 'dist', 'service-worker.js'),
+          outfile: join(process.cwd(), '/dist', 'service-worker.js'),
         });
       },
     },
