@@ -11,15 +11,15 @@ const jwt = {
     return new SignJWT(payload)
       .setProtectedHeader({ algo })
       .setIssuedAt()
-      .setIssuer('https://freecodecamp.org')
-      .setAudience('https://freecodecamp.org')
+      .setIssuer('http://localhost:3000/')
+      .setAudience('http://localhost:3000/')
       .setExpirationTime('2h')
       .sign(secret);
   },
   verify: async (token) => {
     const { payload } = await jwtVerify(token, secret, {
-      issuer: 'https://freecodecamp.org',
-      audience: 'https://freecodecamp.org',
+      issuer: 'http://localhost:3000/',
+      audience: 'http://localhost:3000/',
     });
     return payload;
   },
