@@ -18,8 +18,6 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(textResponse(greeting, headers));
   } else if (url.pathname === '/api/login') {
     console.log('Request is: ', url.pathname);
-
-    //TODO: Implement verification of the token
     /**
      * COMMENT ABOUT VERIFICATION OF TOKEN:
      *
