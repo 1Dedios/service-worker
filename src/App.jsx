@@ -1,36 +1,44 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import jwt from './jwt';
 import './App.css';
 
 const login = async (username, password) => {
-  return await fetch('/api/login', {
+  return fetch('login/:id', {
     method: 'POST',
     headers: {
       Accept: 'application/json',
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      username,
-      password,
-    }),
-  }).then((res) => res.json());
-};
+    body: JSON.stringify({ username, password })
+  })
+}
 
 function App() {
   const [token, setToken] = useState(null);
   const [error, setError] = useState(null);
-  const [username, setUsername] = useState(null);
-  const usernameRef = useRef(null);
-  const passwordRef = useRef(null);
+  const [formData, setFormData] = useState({
+    username: '',
+    password: ''
+  })
+
+  const handleChange = (event) => {
+    const { name, value } = event.target
+    setFormData({
+      ...formData,
+      [name]: value
+    })
+    console.log(...formData)
+  }
+
 
   const auth = async (e) => {
     e.preventDefault();
-    let username = usernameRef.current.value;
-    let password = passwordRef.current.value;
+    let username = formData.username;
+    let password = formData.password;
     const res = await login(username, password);
 
-    console.log('username', usernameRef.current.value);
-    console.log('password', passwordRef.current.value);
+    console.log('username', username.current.value);
+    console.log('password', password.current.value);
 
     if (res.result) {
       setToken(res.result);
@@ -40,18 +48,18 @@ function App() {
       setError(res.error);
       console.log('Error from response', res.error);
     }
-    usernameRef.current = '';
-    passwordRef.current = '';
+    username.current = '';
+    password.current = '';
   };
 
-  useEffect(() => {
-    if (token != null) {
-      jwt.verify(token).then((payload) => {
-        const { username } = payload;
-        setUsername(username);
-      });
-    }
-  }, [token]);
+  // useEffect(() => {
+  //   if (token != null) {
+  //     jwt.verify(token).then((payload) => {
+  //       const { formData.username } = payload;
+  //       setUsername(formData.username);
+  //     });
+  //   }
+  // }, [token]);
 
   return (
     <>
@@ -62,16 +70,21 @@ function App() {
               <label htmlFor="username">Username: </label>
               <input
                 id="username"
-                ref={usernameRef}
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
                 placeholder="Username"
                 required={true}
+                autoComplete
               ></input>
             </div>
             <div id="password">
               <label htmlFor="password">Password: </label>
               <input
                 id="password"
-                ref={passwordRef}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 placeholder="password"
                 required={true}
               ></input>
@@ -79,7 +92,7 @@ function App() {
             <button id="login-button">Login</button>
           </form>
         )}
-        {token && <p>`User: ${username}YOUR TOKEN WAS VALIDATED!!!`</p>}
+        {token && <p>`User: ${formData.username}YOUR TOKEN WAS VALIDATED!!!`</p>}
         {error && <p className="error">Error: {error}</p>}
       </div>
     </>
