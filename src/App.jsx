@@ -9,9 +9,14 @@ const login = async (username, password) => {
       Accept: 'application/json',
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ username, password })
-  })
-}
+    body: JSON.stringify({ username: username, password: password })
+  }).then(res => {
+    if (res.ok) {
+      res.json()
+    }
+    throw new Error('problem logging in')
+  }, error => {console.log(error)})
+
 
 function App() {
   const [token, setToken] = useState(null);
