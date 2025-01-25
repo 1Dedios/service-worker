@@ -25,6 +25,6 @@ npm run server
 ## Tech Stack
 
 1. Vite.JS
-2. Web APIs
+2. Web APIs - ServiceWorker
 3. React
 4. Jose - JWT Library

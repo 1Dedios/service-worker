@@ -1,5 +1,5 @@
 import jwt from './jwt.js';
-import { Wayne } from '@jcubic/wayne';
+
 /**
  * 
  * 
@@ -9,7 +9,6 @@ import { Wayne } from '@jcubic/wayne';
  *  - the script file of a service worker must always be the correct MIME type aka text/javascript
  * 
  */
-const app = new Wayne();
 
 app.get('/api/hello', (req, res) => {
   res.text('welcome to my Service Worker');
