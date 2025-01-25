@@ -1,6 +1,14 @@
 import jwt from './jwt.js';
 import { Wayne } from '@jcubic/wayne';
-
+/**
+ * 
+ * 
+ * THIS WILL HANDLE THE CREATION AND REGISTRATION OF SERVICE WORKERS
+ * 
+ *  - first need to create the script of what the worker is doing - which is authentication this file is type text/javascript
+ *  - the script file of a service worker must always be the correct MIME type aka text/javascript
+ * 
+ */
 const app = new Wayne();
 
 app.get('/api/hello', (req, res) => {

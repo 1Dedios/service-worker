@@ -2,29 +2,36 @@ import { useState, useEffect } from 'react';
 import jwt from './jwt';
 import './App.css';
 
-const login = async (username, password) => {
-  return fetch('login/:id', {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ username: username, password: password })
-  }).then(res => {
-    if (res.ok) {
-      res.json()
-    }
-    throw new Error('problem logging in')
-  }, error => {console.log(error)})
 
+  /**
+   * 
+   * this is the form component - use shadcn if possible also rename this file to sign up form. 
+   */
 
-function App() {
+export default function App() {
   const [token, setToken] = useState(null);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
     username: '',
     password: ''
   })
+
+  const login = async (username, password) => {
+    return fetch('login/:id', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username: username, password: password })
+    }).then(res => {
+      if (res.ok) {
+        res.json()
+      }
+      throw new Error('problem logging in')
+    }, error => { console.log(error) })
+  }
+
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -102,6 +109,6 @@ function App() {
       </div>
     </>
   );
-}
+  }
 
-export default App;
+  //exports.default App;
