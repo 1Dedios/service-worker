@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
-import { join } from 'node:path';
+import path from 'node:path';
+import process from 'node:process'
 import { buildSync } from 'esbuild';
 
 export default defineConfig({
@@ -13,8 +14,8 @@ export default defineConfig({
         buildSync({
           minify: true,
           bundle: true,
-          entryPoints: [join(process.cwd(), 'src', 'service-worker.js')],
-          outfile: join(process.cwd(), 'dist', 'service-worker.js'),
+          entryPoints: [path.join(process.cwd(), 'src', 'service-worker.js')],
+          outfile: path.join(process.cwd(), 'dist', 'service-worker.js'),
         });
       },
     },
