@@ -6,13 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "npx http-server -p 3000 ./dist/",
-    "backend": "json-server --watch db.json",
+    "serve": "npx http-server -p 3000 ./dist",
+    "backend": "node --watch ./src/server.js",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@jcubic/wayne": "^0.17.0",
+    "express": "^4.21.2",
     "jose": "^5.6.3",
     "node": "^23.3.0",
     "react": "^18.3.1",
