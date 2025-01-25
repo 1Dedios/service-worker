@@ -79,19 +79,19 @@ export default function App() {
         {!token && (
           <form onSubmit={auth} method="POST" action="/api/login">
             <div id="username">
-              <label htmlFor="username">Username: </label>
+              <label htmlFor="username">User: </label>
               <input
                 id="username"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                placeholder="Username"
+                placeholder="username"
                 required={true}
                 autoComplete
               ></input>
             </div>
             <div id="password">
-              <label htmlFor="password">Password: </label>
+              <label htmlFor="password">Pass: </label>
               <input
                 id="password"
                 name="password"
@@ -110,5 +110,3 @@ export default function App() {
     </>
   );
   }
-
-  //exports.default App;
