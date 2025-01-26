@@ -17,7 +17,7 @@ export default function App() {
   })
 
   const login = async (username, password) => {
-    return fetch('login/:id', {
+    return await fetch('login/:id', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
