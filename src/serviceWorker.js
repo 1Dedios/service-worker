@@ -1,16 +1,14 @@
-import jwt from './jwt.js';
+/* import jwt from './jwt.js'; */
 
-/**
- * 
- * 
- * THIS WILL HANDLE THE CREATION AND REGISTRATION OF SERVICE WORKERS
- * 
- *  - first need to create the script of what the worker is doing - which is authentication this file is type text/javascript
- *  - the script file of a service worker must always be the correct MIME type aka text/javascript
- * 
- */
+const authServiceWorker = () => {
+  // logic for auth
+  // service worker will capture request
+  // save request body in cache and start process of polling to fulfill request
+};
 
-app.get('/api/hello', (req, res) => {
+authServiceWorker();
+
+/* app.get('/api/hello', (req, res) => {
   res.text('welcome to my Service Worker');
 });
 
@@ -27,4 +25,4 @@ app.post('/api/login', async (req, res) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
-});
+}); */
