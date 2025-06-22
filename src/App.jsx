@@ -1,47 +1,32 @@
-import { useState, useEffect } from 'react';
-import jwt from './jwt';
+import { useState } from 'react';
 import './App.css';
-
-
-  /**
-   * 
-   * this is the form component - use shadcn if possible also rename this file to sign up form. 
-   */
 
 export default function App() {
   const [token, setToken] = useState(null);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
     username: '',
-    password: ''
-  })
+    password: '',
+  });
 
-  const login = async (username, password) => {
-    return await fetch('login/:id', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username: username, password: password })
-    }).then(res => {
-      if (res.ok) {
-        res.json()
-      }
-      throw new Error('problem logging in')
-    }, error => { console.log(error) })
-  }
+  /* useEffect(() => {
+    serviceWorkerRegistration();
+  });
 
-
-  const handleChange = (event) => {
-    const { name, value } = event.target
-    setFormData({
-      ...formData,
-      [name]: value
-    })
-    console.log(...formData)
-  }
-
+  const serviceWorkerRegistration = () => {
+    if ('serviceWorker' in window.navigator) {
+      navigator.serviceWorker
+        .register('./serviceWorker.js', { scope: './' })
+        .then((registration) =>
+          console.log(
+            `Service worker registration was successful - ${registration}`
+          )
+        )
+        .catch((e) =>
+          // STATUS: ofc registration will fail in non-HTTPS environment - comment code to see UI in dev env
+          console.log(`Service workers registration failed - ${e}`)
+        );
+    } */
 
   const auth = async (e) => {
     e.preventDefault();
@@ -64,14 +49,29 @@ export default function App() {
     password.current = '';
   };
 
-  // useEffect(() => {
-  //   if (token != null) {
-  //     jwt.verify(token).then((payload) => {
-  //       const { formData.username } = payload;
-  //       setUsername(formData.username);
-  //     });
-  //   }
-  // }, [token]);
+  const login = async (username, password) => {
+    return await fetch('/user/login', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username: username, password: password }),
+    })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((e) => console.log(e));
+  };
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+    console.log(...formData);
+  };
 
   return (
     <>
@@ -104,9 +104,11 @@ export default function App() {
             <button id="login-button">Login</button>
           </form>
         )}
-        {token && <p>`User: ${formData.username}YOUR TOKEN WAS VALIDATED!!!`</p>}
+        {token && (
+          <p>`User: ${formData.username}YOUR TOKEN WAS VALIDATED!!!`</p>
+        )}
         {error && <p className="error">Error: {error}</p>}
       </div>
     </>
   );
-  }
+}
