@@ -1,13 +1,12 @@
 import { useState } from 'react';
+import { auth } from './utils/auth.js';
 import './App.css';
 
 export default function App() {
   const [token, setToken] = useState(null);
   const [error, setError] = useState(null);
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-  });
+  const [username, setUserName] = useState('');
+  const [password, setPassword] = useState('');
 
   /* useEffect(() => {
     serviceWorkerRegistration();
@@ -16,7 +15,7 @@ export default function App() {
   const serviceWorkerRegistration = () => {
     if ('serviceWorker' in window.navigator) {
       navigator.serviceWorker
-        .register('./serviceWorker.js', { scope: './' })
+        .register('./serviceWorker.js', { scope: '/' })
         .then((registration) =>
           console.log(
             `Service worker registration was successful - ${registration}`
@@ -28,63 +27,25 @@ export default function App() {
         );
     } */
 
-  const auth = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    let username = formData.username;
-    let password = formData.password;
-    const res = await login(username, password);
+    auth(username, password);
 
-    console.log('username', username.current.value);
-    console.log('password', password.current.value);
-
-    if (res.result) {
-      setToken(res.result);
-      setError(null);
-    } else if (res.error) {
-      setToken(null);
-      setError(res.error);
-      console.log('Error from response', res.error);
-    }
-    username.current = '';
-    password.current = '';
-  };
-
-  const login = async (username, password) => {
-    return await fetch('/user/login', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username: username, password: password }),
-    })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((e) => console.log(e));
-  };
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-    console.log(...formData);
+    // TODO: set tokens based on auth
   };
 
   return (
     <>
       <div>
         {!token && (
-          <form onSubmit={auth} method="POST" action="/api/login">
+          <form onSubmit={handleSubmit} method="POST" action="/api/login">
             <div id="username">
               <label htmlFor="username">User: </label>
               <input
                 id="username"
                 name="username"
-                value={formData.username}
-                onChange={handleChange}
+                value={username}
+                onChange={(e) => setUserName(e.target.value)}
                 placeholder="username"
                 required={true}
                 autoComplete
@@ -95,8 +56,8 @@ export default function App() {
               <input
                 id="password"
                 name="password"
-                value={formData.password}
-                onChange={handleChange}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="password"
                 required={true}
               ></input>
@@ -104,9 +65,7 @@ export default function App() {
             <button id="login-button">Login</button>
           </form>
         )}
-        {token && (
-          <p>`User: ${formData.username}YOUR TOKEN WAS VALIDATED!!!`</p>
-        )}
+        {token && <p>`User: ${username}YOUR TOKEN WAS VALIDATED!!!`</p>}
         {error && <p className="error">Error: {error}</p>}
       </div>
     </>
