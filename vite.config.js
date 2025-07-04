@@ -1,10 +1,18 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import path from 'node:path';
-import process from 'node:process'
+import process from 'node:process';
 import { buildSync } from 'esbuild';
 
 export default defineConfig({
+  server: {
+    proxy: {
+      '/user': {
+        target: 'http://localhost:8888',
+        changeOrigin: true,
+      },
+    },
+  },
   plugins: [
     react(),
     {
