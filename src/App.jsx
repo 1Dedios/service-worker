@@ -9,7 +9,9 @@ export default function App() {
   const [password, setPassword] = useState('');
 
   /* useEffect(() => {
-    serviceWorkerRegistration();
+    // first check if there is a token, if so verify and set token state
+    const prevToken = localStorage.getItem("sw-demo")
+    prevToken ? setToken(prevToken) : serviceWorkerRegistration()
   });
 
   const serviceWorkerRegistration = () => {
@@ -27,11 +29,21 @@ export default function App() {
         );
     } */
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    auth(username, password);
-
-    // TODO: set tokens based on auth
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
+      const isAuth = await auth(username, password);
+      console.log('returned from auth -', isAuth);
+      if (isAuth) {
+        localStorage.setItem('sw-demo', isAuth.accessToken);
+        setToken(true);
+        setUserName('');
+        setPassword('');
+      }
+    } catch (e) {
+      setError(true);
+      throw new Error('Could not authenticate');
+    }
   };
 
   return (
@@ -65,7 +77,7 @@ export default function App() {
             <button id="login-button">Login</button>
           </form>
         )}
-        {token && <p>`User: ${username}YOUR TOKEN WAS VALIDATED!!!`</p>}
+        {token && <p>User:{username} - YOUR TOKEN WAS VALIDATED!!!</p>}
         {error && <p className="error">Error: {error}</p>}
       </div>
     </>

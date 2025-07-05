@@ -4,16 +4,29 @@ export async function auth(username, password) {
 }
 
 export async function login(username, password) {
+  let headerOptions = getHeader();
   return await fetch('/user/login', {
     method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ username: username, password: password }),
+    headers: headerOptions,
+    body: JSON.stringify({ username, password }),
   })
     .then((res) => {
-      console.log(res);
+      return res.json();
     })
-    .catch((e) => console.log(e));
+    .catch((e) => {
+      throw new Error(`Error on login: ${e}`);
+    });
+}
+
+export function getHeader() {
+  const prevToken = localStorage.getItem('sw-demo');
+  console.log(`FOUND A PREV SAVED TOKEN: ${prevToken}`);
+  let headerOptions = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  };
+
+  return prevToken
+    ? (headerOptions = { ...headerOptions, Authorization: prevToken })
+    : headerOptions;
 }

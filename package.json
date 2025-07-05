@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "npx http-server -p 3000 ./dist",
+    "serve": "node ./server.js",
     "backend": "node --watch ./src/server.js",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
