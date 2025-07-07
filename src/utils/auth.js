@@ -27,6 +27,9 @@ export function getHeader() {
   };
 
   return prevToken
-    ? (headerOptions = { ...headerOptions, Authorization: prevToken })
+    ? (headerOptions = {
+        ...headerOptions,
+        Authorization: `Bearer ${prevToken}`,
+      })
     : headerOptions;
 }

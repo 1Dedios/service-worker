@@ -1,12 +1,16 @@
 import { useState } from 'react';
-import { auth } from './utils/auth.js';
+import { auth, getHeader } from './utils/auth.js';
 import './App.css';
 
 export default function App() {
   const [token, setToken] = useState(null);
   const [error, setError] = useState(null);
+  const [authSet, setAuthSet] = useState(null);
+  const [noAuthSet, setNoAuthSet] = useState(null);
   const [username, setUserName] = useState('');
   const [password, setPassword] = useState('');
+  const [serverAuthMessage, setServerAuthMessage] = useState(null);
+  const [serverNoAuthMessage, setServerNoAuthMessage] = useState(null);
 
   /* useEffect(() => {
     // first check if there is a token, if so verify and set token state
@@ -28,6 +32,40 @@ export default function App() {
           console.log(`Service workers registration failed - ${e}`)
         );
     } */
+
+  const authorizedAccess = async () => {
+    try {
+      const header = getHeader();
+      const res = await fetch('/user/dashboard', {
+        method: 'GET',
+        headers: header,
+      });
+      const authAccess = await res.json();
+      // TODO: rewrite this logic
+      setAuthSet(true);
+      // TODO: set state for auth message
+      setServerAuthMessage(authAccess.message);
+    } catch (e) {
+      console.log('Error authorizing user for the dashboard', e);
+      setNoAuthSet(true);
+      throw new Error(`Unable to authorize access to dashboard ${e}`);
+    }
+  };
+
+  const notAuthorizedAccess = async () => {
+    try {
+      // TODO: no authorization header == no access
+      const res = await fetch('/user/dashboard/456');
+      const authAccess = await res.json();
+      console.log('unauthorized server res', authAccess);
+      setNoAuthSet(true);
+      setServerNoAuthMessage(authAccess.message);
+    } catch (e) {
+      console.log('Error authorizing user for the dashboard', e);
+      setNoAuthSet(true);
+      throw new Error(`Unable to authorize access to dashboard ${e}`);
+    }
+  };
 
   const handleSubmit = async (e) => {
     try {
@@ -77,8 +115,17 @@ export default function App() {
             <button id="login-button">Login</button>
           </form>
         )}
-        {token && <p>User:{username} - YOUR TOKEN WAS VALIDATED!!!</p>}
+        {token && (
+          <div>
+            <p>User: {username} - YOUR TOKEN WAS VALIDATED!!!</p>
+            <button onClick={authorizedAccess}>Authorized</button>
+            <button onClick={notAuthorizedAccess}>Unauthorized</button>
+          </div>
+        )}
         {error && <p className="error">Error: {error}</p>}
+        {/* TODO: write conditional render based on auth & notAuth state - simple p element */}
+        {authSet && <p>{serverAuthMessage}</p>}
+        {noAuthSet && <p>{serverNoAuthMessage}</p>}
       </div>
     </>
   );

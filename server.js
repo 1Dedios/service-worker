@@ -4,24 +4,56 @@ const app = express();
 const port = 8888;
 
 app.use(express.json());
+// TODO: middleware should extract token if any and based on claim attach the identifying claim to req obj
+app.use('/user/dashboard', async (req, res, next) => {
+  const prevToken = req.headers['authorization'];
+  if (!prevToken || !prevToken.startsWith('Bearer')) {
+    res.status(403).send({ message: 'not authorized to view' });
+    next();
+  } else {
+    try {
+      console.log('middleware: ', req.params.id);
+      console.log(prevToken);
+      const [scheme, token] = prevToken.split(' ');
+      if (scheme === 'Bearer') {
+        const verifiedToken = await jwt.verify(token);
+        console.log('token after verification', verifiedToken);
+        //TODO: token should be returning payload and use sub member as auth
+        const {
+          claim: { sub },
+          iat,
+          exp,
+        } = verifiedToken;
 
-/* app.use('/user/login', async (req, res, next) => {
-  let prevToken = req.headers['authorization'];
-  console.log('hey from middleware');
-  if (prevToken) {
-    const isAuth = jwt.verify(prevToken);
-    if (isAuth) {
-    // isAuth is returning the payload check it 
-      res.json({ result: isAuth });
+        if (sub === 'demo') {
+          // allowing request to continue
+          // TODO: check that token time is valid > 10mins=600s means revalidate
+          const timeValidation = (exp - iat) / 1000;
+          if (timeValidation > 600) {
+            res.status(403).send({ message: 'need you to verify again' });
+          }
+          req.params.role = 'demo';
+          next();
+        }
+      }
+    } catch (e) {
+      res.status(500).send({ message: 'unable to verify you' });
       next();
     }
   }
-  next();
-}); */
+});
 
 app.get('/', (req, res, next) => {
   res.status(200).send({ greeting: 'hello' });
   next();
+});
+
+//TODO: authorized endpoint extracts the req object to query based on this and share that
+app.get('/user/dashboard', (req, res, next) => {
+  if (req.params.role === 'demo') {
+    res.status(200).send({ message: 'You are definitely allowed to see this' });
+    next();
+  }
 });
 
 /**
@@ -55,7 +87,7 @@ app.post('/user/login', async (req, res, next) => {
     res.status(200).send({ accessToken: token });
     next();
   } else {
-    res.status(403).send({ message: 'Invalid username and/or password' });
+    res.status(401).send({ message: 'Invalid username and/or password' });
   }
   next();
 });
