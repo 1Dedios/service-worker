@@ -20,7 +20,6 @@ export async function login(username, password) {
 
 export function getHeader() {
   const prevToken = localStorage.getItem('sw-demo');
-  console.log(`FOUND A PREV SAVED TOKEN: ${prevToken}`);
   let headerOptions = {
     Accept: 'application/json',
     'Content-Type': 'application/json',

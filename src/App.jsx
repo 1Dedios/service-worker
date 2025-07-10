@@ -5,6 +5,7 @@ import './App.css';
 export default function App() {
   const [token, setToken] = useState(null);
   const [error, setError] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
   const [authSet, setAuthSet] = useState(null);
   const [noAuthSet, setNoAuthSet] = useState(null);
   const [username, setUserName] = useState('');
@@ -42,12 +43,16 @@ export default function App() {
       });
       const authAccess = await res.json();
       // TODO: rewrite this logic
+      console.log('Auth Access Server Message ', authAccess);
       setAuthSet(true);
       // TODO: set state for auth message
+      console.log('auth access message ', authAccess.message);
       setServerAuthMessage(authAccess.message);
     } catch (e) {
       console.log('Error authorizing user for the dashboard', e);
       setNoAuthSet(true);
+      setError(true);
+      setErrorMessage(`Error authorizing user for the dashboard ${e}`);
       throw new Error(`Unable to authorize access to dashboard ${e}`);
     }
   };
@@ -55,7 +60,7 @@ export default function App() {
   const notAuthorizedAccess = async () => {
     try {
       // TODO: no authorization header == no access
-      const res = await fetch('/user/dashboard/456');
+      const res = await fetch('/user/dashboard');
       const authAccess = await res.json();
       console.log('unauthorized server res', authAccess);
       setNoAuthSet(true);
@@ -63,6 +68,7 @@ export default function App() {
     } catch (e) {
       console.log('Error authorizing user for the dashboard', e);
       setNoAuthSet(true);
+      setError(true);
       throw new Error(`Unable to authorize access to dashboard ${e}`);
     }
   };
@@ -72,7 +78,10 @@ export default function App() {
       e.preventDefault();
       const isAuth = await auth(username, password);
       console.log('returned from auth -', isAuth);
-      if (isAuth) {
+      const [key] = Object.keys(isAuth);
+      console.log('key: ', key);
+      console.log(key === 'accessToken');
+      if (key === 'accessToken') {
         localStorage.setItem('sw-demo', isAuth.accessToken);
         setToken(true);
         setUserName('');
@@ -80,7 +89,7 @@ export default function App() {
       }
     } catch (e) {
       setError(true);
-      throw new Error('Could not authenticate');
+      throw new Error(`Could not authenticate ${e}`);
     }
   };
 
@@ -122,7 +131,7 @@ export default function App() {
             <button onClick={notAuthorizedAccess}>Unauthorized</button>
           </div>
         )}
-        {error && <p className="error">Error: {error}</p>}
+        {error && <p className="error">Error: {errorMessage}</p>}
         {/* TODO: write conditional render based on auth & notAuth state - simple p element */}
         {authSet && <p>{serverAuthMessage}</p>}
         {noAuthSet && <p>{serverNoAuthMessage}</p>}

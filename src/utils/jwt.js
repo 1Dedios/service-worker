@@ -5,6 +5,8 @@ const secret = new TextEncoder().encode(
 );
 const alg = 'HS256';
 const typ = 'JWT';
+const joseExpTime = '1m';
+const expTimeSeconds = 60;
 
 export const jwt = {
   sign: (payload) => {
@@ -13,7 +15,7 @@ export const jwt = {
       .setIssuedAt()
       .setIssuer('http://localhost:5173/')
       .setAudience('http://localhost:5173/')
-      .setExpirationTime('10m')
+      .setExpirationTime(joseExpTime)
       .sign(secret);
   },
   verify: async (token) => {
@@ -23,6 +25,7 @@ export const jwt = {
     });
     return payload;
   },
+  expTime: expTimeSeconds,
 };
 
 /**
