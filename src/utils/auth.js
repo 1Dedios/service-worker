@@ -12,11 +12,10 @@ export async function login(username, password) {
   });
   const loginAttempt = await response.json();
 
-  if (!loginAttempt.ok) {
+  if (!response.ok) {
     throw new Error(loginAttempt.message);
   } else {
-    console.log('The loginAttempt res: ', loginAttempt);
-    return loginAttempt;
+    return loginAttempt.token;
   }
 }
 

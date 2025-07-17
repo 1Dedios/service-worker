@@ -5,7 +5,8 @@ import './App.css';
 export default function App() {
   const [username, setUserName] = useState('');
   const [password, setPassword] = useState('');
-  const [token, setToken] = useState(null);
+  const [user, setUser] = useState('');
+  const [token, setToken] = useState(false);
   const [initAuthError, setInitAuthError] = useState(false);
   const [initAuthErrorMessage, setInitAuthErrorMessage] = useState('');
   // TODO: still debating if I need state below
@@ -15,16 +16,22 @@ export default function App() {
   const handleLogin = async (e) => {
     try {
       e.preventDefault();
-      const loginAttempt = await auth(username, password);
-      const [key] = Object.keys(loginAttempt);
+      setInitAuthError(false);
+      setInitAuthErrorMessage('');
 
-      if (key === 'accessToken') {
+      const loginAttempt = await auth(username, password);
+
+      if (loginAttempt.accessToken) {
         setToken(true);
+        setUser(username);
         localStorage.setItem('sw-demo', loginAttempt.accessToken);
       }
     } catch (e) {
       setInitAuthError(true);
-      setInitAuthErrorMessage(e.message);
+      setInitAuthErrorMessage(`Unsuccessful Login: ${e.message}`);
+    } finally {
+      setUserName('');
+      setPassword('');
     }
   };
 
@@ -52,19 +59,20 @@ export default function App() {
 
   const authorizedAccess = async () => {
     try {
+      setServerAuthMessage(null);
       console.log('AUTHORIZED ✅ Button Pressed...');
       console.log(
         "Nothing should have happened b/c to the server I am still authenticated. That should change after a minute. Hint: that's how long I made the token last."
       );
 
-      const header = getHeader();
+      const headers = getHeader();
       const res = await fetch('/user/dashboard', {
-        headers: header,
+        headers,
       });
       const authAccess = await res.json();
       // TODO: set state for auth message
-      console.log('Server Message: ', authAccess.message);
-      return setServerAuthMessage(authAccess.message);
+      console.log('Server Message: ', authAccess);
+      setServerAuthMessage(authAccess.message);
     } catch (e) {
       console.log('Error authorizing user for the dashboard', e);
       setInitAuthError(true);
@@ -97,36 +105,36 @@ export default function App() {
         {!token && (
           <form onSubmit={handleLogin} method="POST">
             <div id="username">
-              <label htmlFor="username">User: </label>
+              <label htmlFor="username">Username: </label>
               <input
                 id="username"
                 name="username"
                 value={username}
                 onChange={(e) => setUserName(e.target.value)}
-                placeholder="username"
+                placeholder="Enter Username"
                 required={true}
                 autoComplete
               ></input>
             </div>
             <div id="password">
-              <label htmlFor="password">Pass: </label>
+              <label htmlFor="password">Password: </label>
               <input
                 id="password"
                 name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="password"
+                placeholder="Enter Password"
                 required={true}
               ></input>
             </div>
             <button id="login-button">Login</button>
           </form>
         )}
-        {initAuthError && <p>Unsuccessful Login: {initAuthErrorMessage}</p>}
+        {initAuthError && <p>{initAuthErrorMessage}</p>}
 
         {token && (
           <div>
-            <p>User: {username}</p>
+            <p>User: {user}</p>
             <p>YOUR TOKEN WAS VALIDATED!!!</p>
             <button onClick={authorizedAccess}>Authorized</button>
             <button onClick={notAuthorizedAccess}>Unauthorized</button>

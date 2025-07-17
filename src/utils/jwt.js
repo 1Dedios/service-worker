@@ -1,4 +1,5 @@
 import { SignJWT, jwtVerify } from 'jose';
+import { rolesDB } from '../../database.js';
 
 const secret = new TextEncoder().encode(
   'cc7e0d44fd473002f1c42167459001140ec6389b7353f8088f4d9a95f2f596f2'
@@ -6,7 +7,6 @@ const secret = new TextEncoder().encode(
 const alg = 'HS256';
 const typ = 'JWT';
 const joseExpTime = '1m';
-const expTimeSeconds = 60;
 
 export const jwt = {
   sign: (payload) => {
@@ -25,23 +25,26 @@ export const jwt = {
     });
     return payload;
   },
-  expTime: expTimeSeconds,
 };
 
-/**
-   * 
-   * ##################################################
-      PRODUCTION CODE NOTE: 
-      Production code would of course be different for below func.
-      The claims uniqueness would be very important.
-      The 'jti' value would be based on UUID to ensure
-      that tokens remain unique or the sub key would also be unique.
-      In JS, we can use the UUID package. 
-      ##################################################
-    *
-   */
-export function initClaimGenerator(sub) {
+export function initClaimGenerator(sub, role) {
   return {
     sub,
+    role,
   };
+}
+
+export async function tokenAssignment(username) {
+  if (username === 'demo') {
+    const isKnownUser = rolesDB.filter((user) => user[username]);
+    console.log('USER KNOWN RES: ', isKnownUser);
+    const [user] = isKnownUser;
+    console.log('TOKEN ASSIGNMENT - ROLE: ', user[username].role);
+    let claim = initClaimGenerator(username, user[username].role);
+    const token = await jwt.sign({ claim });
+
+    return { accessToken: token };
+  } else {
+    throw new Error('Invalid username and/or password.');
+  }
 }
