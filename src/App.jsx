@@ -3,17 +3,33 @@ import { auth, getHeader } from './utils/auth.js';
 import './App.css';
 
 export default function App() {
-  const [token, setToken] = useState(null);
-  const [error, setError] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [authSet, setAuthSet] = useState(null);
-  const [noAuthSet, setNoAuthSet] = useState(null);
   const [username, setUserName] = useState('');
   const [password, setPassword] = useState('');
-  const [serverAuthMessage, setServerAuthMessage] = useState(null);
-  const [serverNoAuthMessage, setServerNoAuthMessage] = useState(null);
+  const [token, setToken] = useState(null);
+  const [initAuthError, setInitAuthError] = useState(false);
+  const [initAuthErrorMessage, setInitAuthErrorMessage] = useState('');
+  // TODO: still debating if I need state below
+  const [serverAuthButtonMessage, setServerAuthMessage] = useState(null);
+  const [serverNoAuthButtonMessage, setServerNoAuthMessage] = useState(null);
+
+  const handleLogin = async (e) => {
+    try {
+      e.preventDefault();
+      const loginAttempt = await auth(username, password);
+      const [key] = Object.keys(loginAttempt);
+
+      if (key === 'accessToken') {
+        setToken(true);
+        localStorage.setItem('sw-demo', loginAttempt.accessToken);
+      }
+    } catch (e) {
+      setInitAuthError(true);
+      setInitAuthErrorMessage(e.message);
+    }
+  };
 
   /* useEffect(() => {
+    // first check if handleSubmit failed and then cleanup states for username iniAuthError
     // first check if there is a token, if so verify and set token state
     const prevToken = localStorage.getItem("sw-demo")
     prevToken ? setToken(prevToken) : serviceWorkerRegistration()
@@ -36,23 +52,23 @@ export default function App() {
 
   const authorizedAccess = async () => {
     try {
+      console.log('AUTHORIZED ✅ Button Pressed...');
+      console.log(
+        "Nothing should have happened b/c to the server I am still authenticated. That should change after a minute. Hint: that's how long I made the token last."
+      );
+
       const header = getHeader();
       const res = await fetch('/user/dashboard', {
-        method: 'GET',
         headers: header,
       });
       const authAccess = await res.json();
-      // TODO: rewrite this logic
-      console.log('Auth Access Server Message ', authAccess);
-      setAuthSet(true);
       // TODO: set state for auth message
-      console.log('auth access message ', authAccess.message);
-      setServerAuthMessage(authAccess.message);
+      console.log('Server Message: ', authAccess.message);
+      return setServerAuthMessage(authAccess.message);
     } catch (e) {
       console.log('Error authorizing user for the dashboard', e);
-      setNoAuthSet(true);
-      setError(true);
-      setErrorMessage(`Error authorizing user for the dashboard ${e}`);
+      setInitAuthError(true);
+      setServerNoAuthMessage(`Error authorizing user for the dashboard ${e}`);
       throw new Error(`Unable to authorize access to dashboard ${e}`);
     }
   };
@@ -60,36 +76,18 @@ export default function App() {
   const notAuthorizedAccess = async () => {
     try {
       // TODO: no authorization header == no access
+      console.log('UNAUTHORIZED 🚫 Button Pressed...');
+      console.log(
+        "Authorized resources are off limits. Don't believe me? Wait for the server's response."
+      );
       const res = await fetch('/user/dashboard');
       const authAccess = await res.json();
       console.log('unauthorized server res', authAccess);
-      setNoAuthSet(true);
       setServerNoAuthMessage(authAccess.message);
     } catch (e) {
       console.log('Error authorizing user for the dashboard', e);
-      setNoAuthSet(true);
-      setError(true);
+      setInitAuthError(true);
       throw new Error(`Unable to authorize access to dashboard ${e}`);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    try {
-      e.preventDefault();
-      const isAuth = await auth(username, password);
-      console.log('returned from auth -', isAuth);
-      const [key] = Object.keys(isAuth);
-      console.log('key: ', key);
-      console.log(key === 'accessToken');
-      if (key === 'accessToken') {
-        localStorage.setItem('sw-demo', isAuth.accessToken);
-        setToken(true);
-        setUserName('');
-        setPassword('');
-      }
-    } catch (e) {
-      setError(true);
-      throw new Error(`Could not authenticate ${e}`);
     }
   };
 
@@ -97,7 +95,7 @@ export default function App() {
     <>
       <div>
         {!token && (
-          <form onSubmit={handleSubmit} method="POST" action="/api/login">
+          <form onSubmit={handleLogin} method="POST">
             <div id="username">
               <label htmlFor="username">User: </label>
               <input
@@ -124,17 +122,18 @@ export default function App() {
             <button id="login-button">Login</button>
           </form>
         )}
+        {initAuthError && <p>Unsuccessful Login: {initAuthErrorMessage}</p>}
+
         {token && (
           <div>
-            <p>User: {username} - YOUR TOKEN WAS VALIDATED!!!</p>
+            <p>User: {username}</p>
+            <p>YOUR TOKEN WAS VALIDATED!!!</p>
             <button onClick={authorizedAccess}>Authorized</button>
             <button onClick={notAuthorizedAccess}>Unauthorized</button>
           </div>
         )}
-        {error && <p className="error">Error: {errorMessage}</p>}
-        {/* TODO: write conditional render based on auth & notAuth state - simple p element */}
-        {authSet && <p>{serverAuthMessage}</p>}
-        {noAuthSet && <p>{serverNoAuthMessage}</p>}
+        {serverAuthButtonMessage && <p>{serverAuthButtonMessage}</p>}
+        {serverNoAuthButtonMessage && <p>{serverNoAuthButtonMessage}</p>}
       </div>
     </>
   );

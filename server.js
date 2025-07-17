@@ -9,7 +9,9 @@ app.use('/user/dashboard', async (req, res, next) => {
   const prevToken = req.headers['authorization'];
   console.log('prevToken', prevToken);
   if (!prevToken || !prevToken.startsWith('Bearer')) {
-    res.status(403).send({ message: 'not authorized to view' });
+    res
+      .status(403)
+      .send({ message: "You're not authorized to view the dashboard" });
     next();
   } else {
     try {
@@ -37,7 +39,7 @@ app.use('/user/dashboard', async (req, res, next) => {
         }
       }
     } catch (e) {
-      res.status(500).send({ message: 'Need you to verify again.' });
+      res.status(403).send({ message: 'Need you to verify again.' });
       next();
     }
   }
@@ -87,7 +89,7 @@ app.post('/user/login', async (req, res, next) => {
     res.status(200).send({ accessToken: token });
     next();
   } else {
-    res.status(401).send({ message: 'Invalid username and/or password' });
+    res.status(401).send({ message: 'Invalid username and/or password.' });
   }
   next();
 });

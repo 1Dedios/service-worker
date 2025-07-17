@@ -5,17 +5,19 @@ export async function auth(username, password) {
 
 export async function login(username, password) {
   let headerOptions = getHeader();
-  return await fetch('/user/login', {
+  const response = await fetch('/user/login', {
     method: 'POST',
     headers: headerOptions,
     body: JSON.stringify({ username, password }),
-  })
-    .then((res) => {
-      return res.json();
-    })
-    .catch((e) => {
-      throw new Error(`Error on login: ${e}`);
-    });
+  });
+  const loginAttempt = await response.json();
+
+  if (!loginAttempt.ok) {
+    throw new Error(loginAttempt.message);
+  } else {
+    console.log('The loginAttempt res: ', loginAttempt);
+    return loginAttempt;
+  }
 }
 
 export function getHeader() {
