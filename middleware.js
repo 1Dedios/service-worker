@@ -64,14 +64,11 @@ export const getRolePermissions = async (req, res, next) => {
     const [userPermissions] = permissionSet;
 
     if (userPermissions[userRole].editAccess.includes('x')) {
-      // we'll allow user to access
       res.status(200);
       next();
     } else {
-      // don't have permission to access
       res.status(403);
       next();
     }
   }
-  //TODO: handle if user is not verified
 };

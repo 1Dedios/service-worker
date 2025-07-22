@@ -5,7 +5,7 @@ export const rolesDB = [
     },
   },
 ];
-console.log(rolesDB.filter((user) => user['demo']));
+
 export const permissionDB = [
   {
     Admin: {
@@ -18,4 +18,3 @@ export const permissionDB = [
     },
   },
 ];
-console.log(permissionDB.filter((permissions) => permissions['Admin']));

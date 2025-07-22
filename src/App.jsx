@@ -9,7 +9,6 @@ export default function App() {
   const [token, setToken] = useState(false);
   const [initAuthError, setInitAuthError] = useState(false);
   const [initAuthErrorMessage, setInitAuthErrorMessage] = useState('');
-  // TODO: still debating if I need state below
   const [serverAuthButtonMessage, setServerAuthMessage] = useState(null);
   const [serverNoAuthButtonMessage, setServerNoAuthMessage] = useState(null);
 
@@ -18,12 +17,11 @@ export default function App() {
       e.preventDefault();
       setInitAuthError(false);
       setInitAuthErrorMessage('');
-
       const loginAttempt = await auth(username, password);
 
       if (loginAttempt.accessToken) {
         setToken(true);
-        setUser(username);
+        setUser(username.toUpperCase());
         localStorage.setItem('sw-demo', loginAttempt.accessToken);
       }
     } catch (e) {
@@ -66,36 +64,32 @@ export default function App() {
       );
 
       const headers = getHeader();
-      const res = await fetch('/user/dashboard', {
+      const response = await fetch('/user/dashboard', {
         headers,
       });
-      const authAccess = await res.json();
-      // TODO: set state for auth message
-      console.log('Server Message: ', authAccess);
+      const authAccess = await response.json();
       setServerAuthMessage(authAccess.message);
+
+      if (response.status === 401) {
+        throw new Error('ERROR STATUS: 401');
+      }
     } catch (e) {
-      console.log('Error authorizing user for the dashboard', e);
-      setInitAuthError(true);
-      setServerNoAuthMessage(`Error authorizing user for the dashboard ${e}`);
-      throw new Error(`Unable to authorize access to dashboard ${e}`);
+      setServerNoAuthMessage(`${e.message}`);
     }
   };
 
   const notAuthorizedAccess = async () => {
     try {
-      // TODO: no authorization header == no access
       console.log('UNAUTHORIZED 🚫 Button Pressed...');
       console.log(
         "Authorized resources are off limits. Don't believe me? Wait for the server's response."
       );
+
       const res = await fetch('/user/dashboard');
       const authAccess = await res.json();
-      console.log('unauthorized server res', authAccess);
       setServerNoAuthMessage(authAccess.message);
     } catch (e) {
-      console.log('Error authorizing user for the dashboard', e);
-      setInitAuthError(true);
-      throw new Error(`Unable to authorize access to dashboard ${e}`);
+      throw new Error(`Unable to authorize access to dashboard: ${e}`);
     }
   };
 

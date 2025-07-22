@@ -10,7 +10,6 @@ app.get('/', (req, res) => {
   return res.status(200).send({ greeting: 'hello' });
 });
 
-//TODO: add middleware.js funcs to this endpoint
 app.get(
   '/user/dashboard',
   tokenVerification,
@@ -25,7 +24,6 @@ app.get(
 );
 
 app.post('/user/login', async (req, res) => {
-  // TODO: import token assignment utility
   const { username } = await req.body;
 
   if (username === 'demo') {
